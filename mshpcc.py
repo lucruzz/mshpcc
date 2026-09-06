@@ -1,5 +1,6 @@
 import subprocess
 import argparse
+import time
 import sys
 import os
 
@@ -95,6 +96,13 @@ def main() -> int:
     )
 
     application = subprocess.Popen(command)
+
+    while application.poll() is None:
+        time.sleep(1)
+
+
+    if not application.returncode:
+        collector.terminate()
 
     print(f"MySupervisor HPC Collector has finished...")
 
