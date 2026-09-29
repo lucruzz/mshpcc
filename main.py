@@ -92,7 +92,7 @@ def main() -> int:
 
     jobid: str = None
     submit_dir: str = None
-    logfile: str = None
+    log_filename: str = None
 
     if not os.path.isfile(args.collector) and args.test:
         parser.error(f"Collector script not found: {args.collector}")
@@ -100,10 +100,12 @@ def main() -> int:
     if not args.manager:
         jobid = get_slurm_jobid()
         submit_dir = os.environ.get("SLURM_SUBMIT_DIR", os.getcwd)
-        logfile = os.path.join(submit_dir, f"mshpcc-{jobid}.log")
+        log_filename = os.path.join(submit_dir, f"mshpcc-{jobid}.log")
+        app_output_filename = os.path.join(submit_dir, f"application-{jobid}.out")
     else:
         tmp = os.environ.get("PWD", os.getcwd)
-        logfile = os.path.join(tmp, "mshpcc.log")
+        log_filename = os.path.join(tmp, "mshpcc.log")
+        app_output_filename = os.path.join(tmp, f"application.out")
 
     print(f"MySupervisor HPC Collector has initialized.")
 
@@ -118,8 +120,11 @@ def main() -> int:
     # Esse P2 é o coletor/monitor que vai ser o responsável por realizar toda a coleta
     # O que inclui comunicação com o Slurm e escrita do arquivo com as métricas
     # O processo será dependente (podemos dizer que "P2 é filho de P1").
+
+    logfile = open(log_filename, "w")
     collector = subprocess.Popen(
-        [sys.executable, '-u', str(args.collector)]
+        [sys.executable, '-u', str(args.collector)],
+        stdout=logfile
     )
 
     sinalizer.wait(args.warmup)
@@ -133,7 +138,8 @@ def main() -> int:
     # Possa ser finalizado/encerrado/morto direto por P3
     # De outra forma, se "P1 fosse pai de P3", para encerrar algo de P3
     # seria necessário encerrar P1.
-    application = subprocess.Popen(command, start_new_session=True)
+    outputfile = open(app_output_filename, "w")
+    application = subprocess.Popen(command, start_new_session=True, stdout=outputfile)
 
     # Aqui fico checando, indefinidamente, se a aplicação finalizou
     # Assim, impeço que a aplicação principal siga executando e imprima que o MSHPCC finalizou a execução
