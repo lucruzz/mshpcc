@@ -28,6 +28,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
+        "--timer",
+        type=float,
+        default=0.1,
+        help="Time to wait until the next verification whether the running application has finished."
+    )
+
+    parser.add_argument(
         "--test",
         type=bool,
         default=False,
@@ -100,6 +107,13 @@ def main() -> int:
 
     print(f"MySupervisor HPC Collector has initialized.")
 
+    # Vamos criar também um sinalizador de encerramento responsável pelo warm inicial e final
+    # A ideia é que tenha um tempo de "aquecimento" antes de iniciar a aplicação e depois dela finalizar 
+    # A ideia de usar ele é que o programa tenha uma espera interrompível
+    # Porque se for usado o sleep e houver alguma interrupção do Slurm durante esse tempo
+    # pode acontecer do processo ficar preso no nó. Então esse sinalizador de encerramento pode ajudar
+    sinalizer = threading.Event()
+
     # A principal ideia aqui é iniciar um processo 2 (P2), nesse mesmo processo principal (P1)
     # Esse P2 é o coletor/monitor que vai ser o responsável por realizar toda a coleta
     # O que inclui comunicação com o Slurm e escrita do arquivo com as métricas
@@ -107,6 +121,8 @@ def main() -> int:
     collector = subprocess.Popen(
         [sys.executable, '-u', str(args.collector)]
     )
+
+    sinalizer.wait(args.warmup)
 
     # Também será iniciado um processo 3 (P3), em P1
     # que é a aplicação que se deseja coletar as métricas em questão
@@ -119,19 +135,24 @@ def main() -> int:
     # seria necessário encerrar P1.
     application = subprocess.Popen(command, start_new_session=True)
 
+    # Aqui fico checando, indefinidamente, se a aplicação finalizou
+    # Assim, impeço que a aplicação principal siga executando e imprima que o MSHPCC finalizou a execução
+    while application.poll() is None:
+        time.sleep(args.timer)
+
+    # Caso a aplicação tenha finalizado, eu quero que:
+    # 1. a aplicação finalize de fato todos os processos/threads por ele iniciados
+    application.wait()
+
+    sinalizer.wait(args.cooldown)
+
+    # 2. que o coletor/monitor finalize também
+    collector.terminate()
+    collector.wait()
 
     print(f"MySupervisor HPC Collector has finished.")
 
-
-    # # assim que a nova sessão iniciar eu vou precisar ficar verificando se ela terminou de teempos em tempos
-    # while application.poll() is None:
-
-    #     # espero por 1 segundo para verificar novamente
-    #     time.sleep(.1)
-
-    # print(aplication.returncode)
-    # return sys.exit(aplication.returncode)
-
+    return sys.exit(application.returncode)
 
 
 if __name__ == "__main__":
