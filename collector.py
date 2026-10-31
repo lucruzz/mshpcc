@@ -77,17 +77,17 @@ def job_monitor(interval=1):
             elapsed_time_usec = (time_end - time_start) * 1_000_000
             cpu_delta = cpu_end - cpu_start
 
-            # Se o job usar múltiplos cores,
+            # para o caso do job usar múltiplos cores
             cpu_cores = (cpu_delta / elapsed_time_usec)
             percentage_alocated = ( cpu_cores / sum(ncores) ) * 100
 
-            # Exibe os dados
+            # exibição simple dos dados (pode melhorar nas próximas versões)
             step_name = os.path.basename(cgroup_base_path)
             # print(f"{time.strftime('%H:%M:%S'):<10} | {step_name:<15} | {cpu_percentage:>6.1f}% | {mem_mb:>10.2f} MB")
             # print(f"{time.strftime('%H:%M:%S'):<10} | {cpu_percentage:>6.1f} | {mem_mb:>10.2f}")
             print(f"{time.strftime('%H:%M:%S'):<10} | {cpu_cores:>6.1f} | {percentage_alocated:>9.1f} | {mem_mb:>10.2f}")
 
-            # Atualiza variáveis para o próximo ciclo
+            # atualizo as variáveis para o próximo ciclo
             cpu_start = cpu_end
             time_start = time_end
 
