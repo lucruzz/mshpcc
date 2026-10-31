@@ -110,7 +110,7 @@ def main() -> int:
     print(f"MySupervisor HPC Collector has initialized.")
 
     # Vamos criar também um sinalizador de encerramento responsável pelo warm inicial e final
-    # A ideia é que tenha um tempo de "aquecimento" antes de iniciar a aplicação e depois dela finalizar 
+    # A ideia é que tenha um tempo de "aquecimento" antes de iniciar a aplicação e depois dela finalizar
     # A ideia de usar ele é que o programa tenha uma espera interrompível
     # Porque se for usado o sleep e houver alguma interrupção do Slurm durante esse tempo
     # pode acontecer do processo ficar preso no nó. Então esse sinalizador de encerramento pode ajudar
