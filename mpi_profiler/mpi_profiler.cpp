@@ -47,6 +47,5 @@ int main(){
     std::cout << "Duration     : " << event.duration     << std::endl;
     std::cout << "Communicator : " << event.communicator << std::endl;
 
-
     return 0;
 }
