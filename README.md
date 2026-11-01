@@ -26,6 +26,14 @@ mshpcc <your-command-application>
 
 ## TODO
 
-- [ ] Implement energy collection
-- [ ] Implement GPU collection
-- [ ] Implement MPI calls collections
+- [x] CPU data collection
+- [x] Memory data collection
+- [ ] Energy data collection
+- [ ] GPU data collection
+- [ ] Change the entire implementation to C++
+- [ ] Blocked communication: intercepting MPI_Send and MPI_Recv, including rank, source/destination, size, and duration
+- [ ] Collective communication: add MPI_Bcast, MPI_Reduce, MPI_Allreduce, and MPI_Alltoall
+- [ ] Non-blocking communication: adding MPI_Isend, MPI_Irecv, and completion mechanisms
+- [ ] Integration: correlate MPI records with CPU and memory metrics collected by mshpcc
+- [ ] Transform output to CSV format
+- [ ] Implement a complete PDF report

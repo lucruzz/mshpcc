@@ -1,11 +1,11 @@
 #!/bin/bash
-## :: @Copyright 2026 
+## :: @Copyright 2026
 ## :: Author    : Lucas Cruz
 ## :: Title     : MySupervisor HPC Collector (MSHPCC)
 ## :: Version   : 0.0.1
 ## :: Maintainer: Lucas Cruz
 ## :: Email     : lucruz@posgrad.lncc.br
-## :: Type      : Research    
+## :: Type      : Research
 ##
 ##
 ## :: Message from maintainer : 
